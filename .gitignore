@@ -1,0 +1,31 @@
+# Dependencies
+node_modules/
+venv/
+__pycache__/
+*.pyc
+.venv/
+
+# Environment / Secret
+.env
+.env.*
+!.env.example
+
+# Build / IDE
+dist/
+build/
+.vscode/
+.idea/
+
+# Local Data & Databases (Critical to ignore for clean repo)
+chroma_db/
+backend/data/
+backend/uploads/
+backend/chroma_db/
+data/
+uploads/
+*.log
+dev_log.txt
+
+# OS
+.DS_Store
+Thumbs.db
