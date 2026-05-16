@@ -205,35 +205,35 @@ const ChatPage: React.FC = () => {
         {messages.length === 0 && (
           <div className="chat-empty-state">
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="chat-empty-inner"
+              transition={{ duration: 0.5 }}
+              className="w-full max-w-xl"
             >
               <div className="chat-empty-icon-wrapper">
                 <div className="chat-empty-icon-glow" />
                 <Sparkles className="chat-empty-icon" />
               </div>
               <h1 className="chat-empty-title">
-                How can I assist you today?
+                How can I help you?
               </h1>
               <p className="chat-empty-subtitle">
-                Powered by advanced AI with document intelligence capabilities
+                Ask me anything, or upload a document and I'll answer questions about it.
               </p>
 
               <div className="chat-suggestions">
                 {suggestedPrompts.map((s, i) => (
                   <motion.button
                     key={i}
-                    initial={{ opacity: 0, y: 10 }}
+                    initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 + i * 0.1 }}
-                    whileHover={{ scale: 1.03, y: -2 }}
+                    transition={{ delay: 0.2 + i * 0.08 }}
+                    whileHover={{ y: -2 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleSend(s.prompt)}
                     className="chat-suggestion-card"
                   >
-                    <s.icon size={18} className="chat-suggestion-icon" />
+                    <s.icon size={16} className="chat-suggestion-icon" />
                     <span>{s.label}</span>
                   </motion.button>
                 ))}
