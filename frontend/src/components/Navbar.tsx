@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Bell, Search, User, Activity } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Bell, Search, Activity, Menu } from 'lucide-react';
+import { motion } from 'framer-motion';
 import axios from 'axios';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  onMenuClick?: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onMenuClick }) => {
   const { user } = useAuth();
   const [health, setHealth] = useState<any>(null);
 
@@ -24,16 +28,26 @@ const Navbar: React.FC = () => {
 
   return (
     <header className="navbar-container">
-      {/* Search Bar */}
-      <div className="navbar-search-wrapper">
-        <Search size={16} className="navbar-search-icon" />
-        <input
-          id="global-search"
-          type="text"
-          placeholder="Search everything..."
-          className="navbar-search-input"
-        />
-        <span className="navbar-search-shortcut">⌘K</span>
+      <div className="flex items-center gap-4">
+        {/* Mobile Menu Toggle */}
+        <button 
+          onClick={onMenuClick}
+          className="lg:hidden p-2 -ml-2 text-slate-500 hover:bg-slate-100 rounded-xl transition-colors"
+        >
+          <Menu size={24} />
+        </button>
+
+        {/* Search Bar */}
+        <div className="navbar-search-wrapper hidden md:flex">
+          <Search size={16} className="navbar-search-icon" />
+          <input
+            id="global-search"
+            type="text"
+            placeholder="Search everything..."
+            className="navbar-search-input"
+          />
+          <span className="navbar-search-shortcut">⌘K</span>
+        </div>
       </div>
 
       <div className="navbar-actions">
@@ -42,7 +56,7 @@ const Navbar: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="navbar-health-badge"
+            className="navbar-health-badge hidden sm:flex"
           >
             <Activity size={12} className="navbar-health-icon" />
             <span>{health.model?.split('/')[1] || 'AI'}</span>
@@ -57,7 +71,7 @@ const Navbar: React.FC = () => {
 
         {/* User Profile */}
         <div className="navbar-user-profile" id="user-profile">
-          <div className="navbar-user-info">
+          <div className="navbar-user-info hidden md:block">
             <p className="navbar-username">{user?.username || 'Abhijit'}</p>
             <div className="navbar-user-status">
               <span className="navbar-status-dot" />

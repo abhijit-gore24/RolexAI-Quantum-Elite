@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { MessageSquare, Files, Settings, History, LogOut, Sparkles, Plus, Zap } from 'lucide-react';
+import { MessageSquare, Files, Settings, History, LogOut, Sparkles, Plus, Zap, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onClose?: () => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
   const { logout } = useAuth();
   const navigate = useNavigate();
   const [isCreating, setIsCreating] = useState(false);
@@ -38,17 +42,25 @@ const Sidebar: React.FC = () => {
     try {
       const res = await axios.post('/api/sessions', {});
       localStorage.setItem('currentSessionId', res.data.session_id);
-      // Force a page reload to reset the chat state for a fresh session
       window.location.href = '/';
     } catch (err) {
       console.error('Failed to create session:', err);
     } finally {
       setIsCreating(false);
+      if (onClose) onClose();
     }
   };
 
   return (
-    <div className="sidebar-container">
+    <div className="sidebar-container w-72 lg:w-72 h-full flex flex-col p-6 border-r border-slate-200/60 bg-white/90 backdrop-blur-3xl z-50 shadow-2xl lg:shadow-none">
+      {/* Mobile Close Button */}
+      <button 
+        onClick={onClose}
+        className="lg:hidden absolute top-6 right-6 p-2 text-slate-400 hover:bg-slate-100 rounded-xl"
+      >
+        <X size={20} />
+      </button>
+
       {/* Brand */}
       <div className="sidebar-brand">
         <motion.div
@@ -92,7 +104,7 @@ const Sidebar: React.FC = () => {
             New Session
           </>
         )}
-        <span className="sidebar-shortcut-badge">⌘N</span>
+        <span className="sidebar-shortcut-badge hidden lg:inline">⌘N</span>
       </motion.button>
 
       {/* Navigation */}
@@ -101,6 +113,7 @@ const Sidebar: React.FC = () => {
           <NavLink
             key={item.path}
             to={item.path}
+            onClick={() => onClose && onClose()}
             className={({ isActive }) => `sidebar-nav-link ${isActive ? 'active' : ''}`}
           >
             <item.icon size={20} />
