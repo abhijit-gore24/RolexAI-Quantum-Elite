@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: rolexai-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_MODEL
+        value: openai/gpt-3.5-turbo
+      - key: EMBED_MODEL
+        value: all-MiniLM-L6-v2
+      - key: ADMIN_USERNAME
+        value: Abhijit
+      - key: ADMIN_PASSWORD
+        value: Abhijit
+      - key: SECRET_KEY
+        value: rolex-ai-secret-key-2024-ultra-secure
+      - key: CHROMA_DB_PATH
+        value: ./chroma_db
+      - key: ALLOWED_ORIGINS
+        value: "*"
