@@ -11,8 +11,8 @@ class Config:
     CHROMA_DB_PATH = os.getenv("CHROMA_DB_PATH", "./chroma_db")
     SECRET_KEY = os.getenv("SECRET_KEY", "rolex-ai-secret-key-2024-ultra-secure")
     ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "Abhijit")
-    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Abhijit123")
-    ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
+    ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "Abhijit")
+    ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", "*").split(",")
     UPLOAD_DIR = "./uploads"
     ALGORITHM = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 7 # 7 days
