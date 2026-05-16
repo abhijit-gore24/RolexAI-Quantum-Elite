@@ -15,7 +15,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   if (!isAuthenticated) return <Navigate to="/login" />;
 
   return (
-    <div className="flex h-screen w-screen bg-rolex-black text-white overflow-hidden">
+    <div className="flex h-screen w-screen bg-white text-slate-900 overflow-hidden">
       <Sidebar />
       <div className="flex-1 flex flex-col relative overflow-hidden">
         <Navbar />

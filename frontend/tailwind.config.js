@@ -9,7 +9,7 @@ export default {
     extend: {
       colors: {
         rolex: {
-          black: "#0a0a0a",
+          black: "#ffffff",
           silver: "#c0c0c0",
           gold: "#d4af37",
           blue: "#0070f3",

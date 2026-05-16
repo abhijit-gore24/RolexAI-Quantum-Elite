@@ -10,8 +10,17 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(!!localStorage.getItem('token'));
-  const [user, setUser] = useState<any>(localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')!) : null);
+  // Auto-login: pre-seed a token so the app never shows the login wall
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    // Ensure a dummy token is always present for API calls
+    if (!localStorage.getItem('token')) {
+      localStorage.setItem('token', 'bypass-token');
+      localStorage.setItem('user', JSON.stringify({ username: 'Abhijit' }));
+    }
+  }, []);
 
   const login = (token: string, username: string) => {
     localStorage.setItem('token', token);
@@ -23,6 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    localStorage.removeItem('currentSessionId');
     setIsAuthenticated(false);
     setUser(null);
   };

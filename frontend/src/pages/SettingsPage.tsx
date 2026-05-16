@@ -20,7 +20,7 @@ const SettingsPage: React.FC = () => {
     <div className="settings-page">
       <div className="settings-header">
         <h1 className="settings-title text-gradient">System Settings</h1>
-        <p className="settings-subtitle">Configure your Quantum Elite AI platform</p>
+        <p className="settings-subtitle">Configure your BotForge AI platform</p>
       </div>
 
       {/* Status Card */}
@@ -71,12 +71,12 @@ const SettingsPage: React.FC = () => {
               <div className="settings-icon-box amber"><Palette size={22} /></div>
               <div>
                 <p className="settings-card-title">Theme Mode</p>
-                <p className="settings-card-desc">Nexus Premium Dark</p>
+                <p className="settings-card-desc">BotForge Light Premium</p>
               </div>
             </div>
             <div className="settings-theme-toggle">
-              <button className="settings-theme-btn">Light</button>
-              <button className="settings-theme-btn active">Dark</button>
+              <button className="settings-theme-btn active">Light</button>
+              <button className="settings-theme-btn">Dark</button>
             </div>
           </div>
         </div>

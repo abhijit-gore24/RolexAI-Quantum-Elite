@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MessageSquare, Clock, ArrowRight, Loader2, Trash2, Calendar } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
@@ -14,10 +15,13 @@ interface ChatSession {
 const HistoryPage: React.FC = () => {
   const [history, setHistory] = useState<ChatSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const navigate = useNavigate();
 
   const fetchHistory = async () => {
     try {
-      const response = await axios.get('/api/history');
+      const response = await axios.get('/api/history', {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
       setHistory(response.data);
     } catch (error) {
       console.error("Failed to fetch history", error);
@@ -28,9 +32,16 @@ const HistoryPage: React.FC = () => {
 
   useEffect(() => { fetchHistory(); }, []);
 
+  const handleSelectSession = (sessionId: string) => {
+    localStorage.setItem('currentSessionId', sessionId);
+    navigate('/');
+  };
+
   const handleDelete = async (sessionId: string) => {
     try {
-      await axios.delete(`/api/sessions/${sessionId}`);
+      await axios.delete(`/api/sessions/${sessionId}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
       setHistory(prev => prev.filter(s => s.session_id !== sessionId));
     } catch (error) {
       console.error("Failed to delete session", error);
@@ -70,6 +81,7 @@ const HistoryPage: React.FC = () => {
             <motion.div key={chat.session_id}
               variants={{ hidden: { opacity: 0, y: 10 }, visible: { opacity: 1, y: 0 } }}
               exit={{ opacity: 0, scale: 0.95 }} whileHover={{ x: 4 }}
+              onClick={() => handleSelectSession(chat.session_id)}
               className="history-card"
             >
               <div className="history-card-left">

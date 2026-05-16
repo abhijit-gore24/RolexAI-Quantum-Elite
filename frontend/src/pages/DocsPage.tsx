@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { Upload, File, CheckCircle, AlertCircle, Trash2, ShieldCheck, Zap } from 'lucide-react';
 import axios from 'axios';
@@ -13,6 +13,26 @@ interface UploadedFile {
 
 const DocsPage: React.FC = () => {
   const [files, setFiles] = useState<UploadedFile[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchDocuments = async () => {
+    try {
+      const res = await axios.get('/api/documents');
+      const formatted = res.data.map((d: any) => ({
+        id: d.file_id,
+        name: d.filename,
+        size: (d.size_bytes / 1024 / 1024).toFixed(2) + ' MB',
+        status: 'indexed' as const
+      }));
+      setFiles(formatted);
+    } catch (e) {
+      console.error("Failed to fetch documents", e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => { fetchDocuments(); }, []);
 
   const onDrop = useCallback(async (acceptedFiles: File[]) => {
     for (const file of acceptedFiles) {
@@ -26,7 +46,12 @@ const DocsPage: React.FC = () => {
       const formData = new FormData();
       formData.append('file', file);
       try {
-        await axios.post('/api/upload', formData);
+        await axios.post('/api/upload', formData, {
+          headers: { 
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+            'Content-Type': 'multipart/form-data'
+          }
+        });
         setFiles(prev => prev.map(f => f.id === newFile.id ? { ...f, status: 'indexed' } : f));
       } catch {
         setFiles(prev => prev.map(f => f.id === newFile.id ? { ...f, status: 'error' } : f));

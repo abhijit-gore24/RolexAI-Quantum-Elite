@@ -58,7 +58,7 @@ const Navbar: React.FC = () => {
         {/* User Profile */}
         <div className="navbar-user-profile" id="user-profile">
           <div className="navbar-user-info">
-            <p className="navbar-username">{user?.username || 'Admin'}</p>
+            <p className="navbar-username">{user?.username || 'Abhijit'}</p>
             <div className="navbar-user-status">
               <span className="navbar-status-dot" />
               <p className="navbar-status-text">Online</p>

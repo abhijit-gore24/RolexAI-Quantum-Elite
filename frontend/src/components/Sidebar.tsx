@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { MessageSquare, Files, Settings, History, LogOut, Sparkles, Plus, Zap } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -36,8 +36,8 @@ const Sidebar: React.FC = () => {
     if (isCreating) return;
     setIsCreating(true);
     try {
-      await axios.post('/api/sessions');
-      navigate('/');
+      const res = await axios.post('/api/sessions', {});
+      localStorage.setItem('currentSessionId', res.data.session_id);
       // Force a page reload to reset the chat state for a fresh session
       window.location.href = '/';
     } catch (err) {
@@ -52,22 +52,22 @@ const Sidebar: React.FC = () => {
       {/* Brand */}
       <div className="sidebar-brand">
         <motion.div
-          whileHover={{ rotate: 12, scale: 1.1 }}
+          whileHover={{ rotate: 12, scale: 1.1, filter: 'drop-shadow(0 0 8px rgba(10, 102, 194, 0.4))' }}
           transition={{ type: 'spring', stiffness: 300 }}
           className="sidebar-brand-icon"
         >
-          <Sparkles className="sidebar-sparkle-icon" />
+          <Zap className="sidebar-sparkle-icon" />
         </motion.div>
         <div>
-          <span className="sidebar-brand-title">Quantum Elite</span>
-          <p className="sidebar-brand-subtitle">Supreme AI Agent</p>
+          <span className="sidebar-brand-title">BotForge</span>
+          <p className="sidebar-brand-subtitle">Next-Gen Neural Forge</p>
         </div>
       </div>
 
       {/* Chronometer */}
-      <div className="px-6 mb-8 py-4 bg-white/5 border border-white/5 rounded-2xl">
-        <p className="text-[9px] text-gray-500 uppercase tracking-widest font-black mb-1.5">Nexus Chronometer</p>
-        <p className="text-xl font-mono font-black text-rolex-blue tabular-nums drop-shadow-[0_0_8px_rgba(0,112,243,0.5)]">
+      <div className="sidebar-chronometer-box">
+        <p className="text-[9px] text-slate-400 uppercase tracking-[0.2em] font-black mb-1.5">Forge Chronometer</p>
+        <p className="text-xl font-mono font-black text-rolex-blue tabular-nums">
           {formatTime(currentTime)}
         </p>
       </div>
@@ -123,7 +123,10 @@ const Sidebar: React.FC = () => {
         </div>
         <button
           id="sign-out-btn"
-          onClick={logout}
+          onClick={() => {
+            logout();
+            window.location.href = '/login';
+          }}
           className="sidebar-logout-btn"
         >
           <LogOut size={18} />

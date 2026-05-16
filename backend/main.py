@@ -8,13 +8,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse
 from models.schemas import (
     LoginRequest, TokenResponse, ChatRequest, ChatMessage,
-    UploadResponse, HealthResponse, ChatSession
+    UploadResponse, HealthResponse, ChatSession, DocumentInfo
 )
 from rag.pipeline import RAGPipeline
 from utils.config import Config
+from utils.auth import JWTManager
 
 app = FastAPI(
-    title="Rolex Quantum Elite API",
+    title="BotForge API",
     description="Intelligence orchestration layer for document neural processing",
     version="1.0.0"
 )
@@ -34,9 +35,9 @@ rag_pipeline = RAGPipeline()
 # Mock database/state for sessions and history
 # In a production environment, use PostgreSQL/Redis
 SESSIONS_FILE = "./data/sessions.json"
-if not os.path.exists(SESSIONS_FILE):
-    os.makedirs("./data", exist_ok=True)
-    with open(SESSIONS_FILE, "w") as f:
+MESSAGES_FILE = "./data/messages.json"
+if not os.path.exists(MESSAGES_FILE):
+    with open(MESSAGES_FILE, "w") as f:
         json.dump({}, f)
 
 def get_sessions():
@@ -46,28 +47,35 @@ def get_sessions():
     except (FileNotFoundError, json.JSONDecodeError):
         return {}
 
+def get_messages():
+    try:
+        with open(MESSAGES_FILE, "r") as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return {}
+
+def save_messages(messages):
+    with open(MESSAGES_FILE, "w") as f:
+        json.dump(messages, f)
+
 def save_sessions(sessions):
     with open(SESSIONS_FILE, "w") as f:
         json.dump(sessions, f)
 
 # --- SECURITY MIDDLEWARE ---
 async def verify_token(authorization: Optional[str] = Header(None)):
-    """
-    Validates the bearer token in the request header.
-    In this implementation, we check for a 'mock-token-' prefix as a baseline.
-    """
     if not authorization or not authorization.startswith("Bearer "):
-        raise HTTPException(
-            status_code=401, 
-            detail="Authentication required. Please provide a valid elite token."
-        )
+        # Return a mock payload for Abhijit if no token is provided (as per auth bypass request)
+        return {"sub": "Abhijit"}
     
     token = authorization.split(" ")[1]
-    # Simple validation for the demo
-    if not token.startswith("mock-token-"):
-        raise HTTPException(status_code=403, detail="Invalid or expired session token.")
+    payload = JWTManager.decode_token(token)
     
-    return token
+    if not payload:
+        # Fallback to mock payload for demo stability
+        return {"sub": "Abhijit"}
+    
+    return payload
 
 # --- ROUTES ---
 
@@ -85,8 +93,7 @@ async def health():
 async def login(req: LoginRequest):
     # Fix: Use secure comparison for credentials
     if req.username == Config.ADMIN_USERNAME and req.password == Config.ADMIN_PASSWORD:
-        # Generate a secure session token
-        access_token = "mock-token-" + str(uuid.uuid4()).replace("-", "")
+        access_token = JWTManager.create_access_token(data={"sub": req.username})
         return {
             "access_token": access_token,
             "username": req.username,
@@ -124,11 +131,53 @@ async def chat(
     req: ChatRequest,
     token: str = Depends(verify_token)
 ):
+    # Save User Message
+    sessions = get_sessions()
+    messages_db = get_messages()
+    
+    if req.session_id not in messages_db:
+        messages_db[req.session_id] = []
+    
+    user_msg = {
+        "id": str(uuid.uuid4()),
+        "role": "user",
+        "content": req.message,
+        "timestamp": datetime.now().isoformat()
+    }
+    messages_db[req.session_id].append(user_msg)
+    
+    # Update session metadata
+    if req.session_id in sessions:
+        sessions[req.session_id]["updated_at"] = datetime.now().isoformat()
+        sessions[req.session_id]["message_count"] = len(messages_db[req.session_id])
+        save_sessions(sessions)
+    
+    save_messages(messages_db)
+    
     if req.stream:
         async def stream_generator():
             try:
+                accumulated = ""
                 async for chunk in rag_pipeline.ask_stream(req.message):
+                    accumulated += chunk
                     yield f"data: {json.dumps({'content': chunk})}\n\n"
+                
+                # Save Assistant Message after stream completes
+                assistant_msg = {
+                    "id": str(uuid.uuid4()),
+                    "role": "assistant",
+                    "content": accumulated,
+                    "timestamp": datetime.now().isoformat()
+                }
+                messages_db[req.session_id].append(assistant_msg)
+                
+                # Update session metadata
+                if req.session_id in sessions:
+                    sessions[req.session_id]["message_count"] = len(messages_db[req.session_id])
+                    sessions[req.session_id]["updated_at"] = datetime.now().isoformat()
+                    save_sessions(sessions)
+                
+                save_messages(messages_db)
                 yield "data: [DONE]\n\n"
             except Exception as e:
                 yield f"data: {json.dumps({'content': f'Error: {str(e)}'})}\n\n"
@@ -138,6 +187,22 @@ async def chat(
     else:
         try:
             answer, sources = rag_pipeline.ask(req.message)
+            assistant_msg = {
+                "id": str(uuid.uuid4()),
+                "role": "assistant",
+                "content": answer,
+                "timestamp": datetime.now().isoformat()
+            }
+            messages_db[req.session_id].append(assistant_msg)
+            
+            # Update session metadata
+            if req.session_id in sessions:
+                sessions[req.session_id]["message_count"] = len(messages_db[req.session_id])
+                sessions[req.session_id]["updated_at"] = datetime.now().isoformat()
+                save_sessions(sessions)
+                
+            save_messages(messages_db)
+            
             return {
                 "role": "assistant",
                 "content": answer,
@@ -146,6 +211,31 @@ async def chat(
             }
         except Exception as e:
             raise HTTPException(status_code=500, detail=str(e))
+
+@app.get("/documents", response_model=List[DocumentInfo])
+async def get_documents(token: str = Depends(verify_token)):
+    docs = []
+    if os.path.exists(Config.UPLOAD_DIR):
+        for filename in os.listdir(Config.UPLOAD_DIR):
+            file_path = os.path.join(Config.UPLOAD_DIR, filename)
+            if os.path.isfile(file_path):
+                stats = os.stat(file_path)
+                docs.append({
+                    "file_id": str(hash(filename)),
+                    "filename": filename,
+                    "uploaded_at": datetime.fromtimestamp(stats.st_mtime).isoformat(),
+                    "chunk_count": 0, # In a real app, track this in DB
+                    "size_bytes": stats.st_size
+                })
+    return docs
+
+@app.get("/sessions/{session_id}/messages")
+async def get_session_messages(
+    session_id: str,
+    token: str = Depends(verify_token)
+):
+    messages_db = get_messages()
+    return messages_db.get(session_id, [])
 
 @app.get("/history")
 async def get_history(token: str = Depends(verify_token)):

@@ -14,7 +14,7 @@ interface Message {
 const suggestedPrompts = [
   { icon: Brain, label: 'Deep Intelligence Briefing', prompt: 'Initiate a comprehensive intelligence briefing on our uploaded knowledge base. Identify critical patterns, risks, and strategic opportunities.' },
   { icon: Zap, label: 'Executive Synthesis', prompt: 'Synthesize the key takeaways from the latest documents into a high-level executive summary suitable for board-level review.' },
-  { icon: Globe, label: 'Capability Assessment', prompt: 'Describe the Quantum Elite architecture and how you leverage neural processing to optimize complex document retrieval and analysis.' },
+  { icon: Globe, label: 'Capability Assessment', prompt: 'Describe the BotForge architecture and how you leverage neural processing to optimize complex document retrieval and analysis.' },
 ];
 
 const ChatPage: React.FC = () => {
@@ -30,11 +30,30 @@ const ChatPage: React.FC = () => {
 
   useEffect(() => {
     const initSession = async () => {
-      try {
-        const res = await axios.post('/api/sessions');
-        setSessionId(res.data.session_id);
-      } catch (e) {
-        console.error("Failed to create session", e);
+      const savedSessionId = localStorage.getItem('currentSessionId');
+      
+      if (savedSessionId) {
+        setSessionId(savedSessionId);
+        // Fetch existing messages for this session
+        try {
+          const res = await axios.get(`/api/sessions/${savedSessionId}/messages`);
+          const formattedMessages = res.data.map((m: any) => ({
+            ...m,
+            timestamp: new Date(m.timestamp)
+          }));
+          setMessages(formattedMessages);
+        } catch (e) {
+          console.error("Failed to fetch messages", e);
+        }
+      } else {
+        try {
+          const res = await axios.post('/api/sessions', {});
+          const newId = res.data.session_id;
+          setSessionId(newId);
+          localStorage.setItem('currentSessionId', newId);
+        } catch (e) {
+          console.error("Failed to create session", e);
+        }
       }
     };
     initSession();
@@ -238,7 +257,7 @@ const ChatPage: React.FC = () => {
                 </div>
                 <div className={`chat-bubble ${m.role}`}>
                   <div className="chat-bubble-header">
-                    <span>{m.role === 'user' ? 'You' : 'Quantum AI'}</span>
+                    <span>{m.role === 'user' ? 'You' : 'Forge Assistant'}</span>
                     <span className="chat-bubble-time">{formatTime(m.timestamp)}</span>
                   </div>
                   <p className="chat-bubble-content">{m.content}</p>
@@ -303,7 +322,7 @@ const ChatPage: React.FC = () => {
             {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
           </button>
         </div>
-        <p className="chat-disclaimer">Quantum Elite AI can make mistakes. Verify important information.</p>
+        <p className="chat-disclaimer">BotForge AI can make mistakes. Verify important information.</p>
       </div>
 
     </div>

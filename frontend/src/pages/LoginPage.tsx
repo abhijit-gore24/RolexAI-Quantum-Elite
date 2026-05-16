@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Lock, User, Sparkles, ChevronRight, ShieldCheck } from 'lucide-react';
+import { Lock, User, Zap, ChevronRight, ShieldCheck } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
 
@@ -24,6 +24,7 @@ const LoginPage: React.FC = () => {
 
     try {
       const response = await axios.post('/api/login', { username, password });
+      localStorage.removeItem('currentSessionId'); // Clear old session for new user
       login(response.data.access_token, response.data.username);
       navigate('/');
     } catch (err: any) {
@@ -56,10 +57,10 @@ const LoginPage: React.FC = () => {
             transition={{ type: 'spring', delay: 0.2, stiffness: 200 }}
             className="login-logo"
           >
-            <Sparkles className="login-logo-icon" />
+            <Zap className="login-logo-icon" />
           </motion.div>
-          <h1 className="login-title">Quantum Elite</h1>
-          <p className="login-subtitle">Neural Intelligence Platform</p>
+          <h1 className="login-title text-gradient">BotForge</h1>
+          <p className="login-subtitle">Intelligent AI Forge Platform</p>
         </div>
 
         {/* Login Form */}
