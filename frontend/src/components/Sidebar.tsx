@@ -71,8 +71,8 @@ const Sidebar: React.FC<SidebarProps> = ({ onClose }) => {
           <Zap className="sidebar-sparkle-icon" />
         </motion.div>
         <div>
-          <span className="sidebar-brand-title">BotForge</span>
-          <p className="sidebar-brand-subtitle">Next-Gen Neural Forge</p>
+          <span className="sidebar-brand-title">FluxTalk</span>
+          <p className="sidebar-brand-subtitle">Quantum Neural Network</p>
         </div>
       </div>
 

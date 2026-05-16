@@ -15,7 +15,7 @@ from utils.config import Config
 from utils.auth import JWTManager
 
 app = FastAPI(
-    title="BotForge API",
+    title="FluxTalk API",
     description="Intelligence orchestration layer for document neural processing",
     version="1.0.0"
 )

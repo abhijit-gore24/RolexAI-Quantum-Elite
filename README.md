@@ -1,7 +1,7 @@
-# 🌌 Rolex Quantum Elite — BotForge AI
+# 🌌 Rolex Quantum Elite — FluxTalk AI
 ### *The Pinnacle of Document Intelligence & Neural Orchestration*
 
-Rolex Quantum Elite (BotForge) is a premium, production-grade AI ecosystem engineered for elite data analysis, RAG-based document intelligence, and real-time neural processing. Designed with a stunning white-glass "Nexus" aesthetic, it provides a seamless bridge between complex data structures and actionable intelligence.
+Rolex Quantum Elite (FluxTalk) is a premium, production-grade AI ecosystem engineered for elite data analysis, RAG-based document intelligence, and real-time neural processing. Designed with a stunning white-glass "Nexus" aesthetic, it provides a seamless bridge between complex data structures and actionable intelligence.
 
 ---
 

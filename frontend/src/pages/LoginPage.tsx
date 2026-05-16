@@ -59,8 +59,8 @@ const LoginPage: React.FC = () => {
           >
             <Zap className="login-logo-icon" />
           </motion.div>
-          <h1 className="login-title text-gradient">BotForge</h1>
-          <p className="login-subtitle">Intelligent AI Forge Platform</p>
+          <h1 className="login-title text-gradient">FluxTalk</h1>
+          <p className="login-subtitle">Intelligent AI Chat Platform</p>
         </div>
 
         {/* Login Form */}

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Bot, User, Paperclip, Loader2, Sparkles, Zap, Brain, Globe } from 'lucide-react';
+import { Send, Paperclip, Loader2, Sparkles, Zap, Brain, Globe } from 'lucide-react';
 import axios from 'axios';
 
 interface Message {
@@ -14,7 +14,7 @@ interface Message {
 const suggestedPrompts = [
   { icon: Brain, label: 'Deep Intelligence Briefing', prompt: 'Initiate a comprehensive intelligence briefing on our uploaded knowledge base. Identify critical patterns, risks, and strategic opportunities.' },
   { icon: Zap, label: 'Executive Synthesis', prompt: 'Synthesize the key takeaways from the latest documents into a high-level executive summary suitable for board-level review.' },
-  { icon: Globe, label: 'Capability Assessment', prompt: 'Describe the BotForge architecture and how you leverage neural processing to optimize complex document retrieval and analysis.' },
+  { icon: Globe, label: 'Capability Assessment', prompt: 'Describe the FluxTalk architecture and how you leverage neural processing to optimize complex document retrieval and analysis.' },
 ];
 
 const ChatPage: React.FC = () => {
@@ -252,12 +252,9 @@ const ChatPage: React.FC = () => {
               className={`chat-message-row ${m.role === 'user' ? 'user' : 'assistant'}`}
             >
               <div className={`chat-message-wrapper ${m.role}`}>
-                <div className={`chat-avatar ${m.role}`}>
-                  {m.role === 'user' ? <User size={18} /> : <Bot size={18} />}
-                </div>
                 <div className={`chat-bubble ${m.role}`}>
                   <div className="chat-bubble-header">
-                    <span>{m.role === 'user' ? 'You' : 'Forge Assistant'}</span>
+                    <span>{m.role === 'user' ? 'You' : 'FluxTalk Assistant'}</span>
                     <span className="chat-bubble-time">{formatTime(m.timestamp)}</span>
                   </div>
                   <p className="chat-bubble-content">{m.content}</p>
@@ -322,7 +319,7 @@ const ChatPage: React.FC = () => {
             {isLoading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
           </button>
         </div>
-        <p className="chat-disclaimer">BotForge AI can make mistakes. Verify important information.</p>
+        <p className="chat-disclaimer">FluxTalk AI can make mistakes. Verify important information.</p>
       </div>
 
     </div>
