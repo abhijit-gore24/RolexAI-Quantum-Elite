@@ -1,7 +1,7 @@
 import os
 from typing import List, Optional
 from langchain_openai import ChatOpenAI
-from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, Docx2txtLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -11,7 +11,11 @@ from utils.config import Config
 
 class RAGPipeline:
     def __init__(self):
-        self.embeddings = HuggingFaceEmbeddings(model_name=Config.EMBED_MODEL)
+        # Use HuggingFace Inference API — no local model loaded, minimal RAM usage
+        self.embeddings = HuggingFaceInferenceAPIEmbeddings(
+            api_key=Config.HUGGINGFACE_API_TOKEN,
+            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        )
         self.vector_db = Chroma(
             persist_directory=Config.CHROMA_DB_PATH,
             embedding_function=self.embeddings
@@ -66,8 +70,5 @@ class RAGPipeline:
         return answer, sources
 
     async def ask_stream(self, query: str):
-        # LangChain's astream_log or standard stream can be used
-        # For simplicity in this first pass, we'll use standard stream if possible or a wrapper
-        # ChatGroq supports streaming
         async for chunk in self.llm.astream(query):
             yield chunk.content

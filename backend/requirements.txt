@@ -17,11 +17,11 @@ chromadb==0.5.3
 pypdf==4.2.0
 docx2txt==0.8
 
-# Embeddings & ML
-sentence-transformers==3.0.1
-tiktoken==0.7.0
+# HuggingFace Inference API (no local model, no PyTorch, minimal RAM)
+huggingface-hub==0.23.4
 
 # Utilities
 aiofiles==23.2.1
 httpx==0.27.0
 PyJWT==2.8.0
+tiktoken==0.7.0

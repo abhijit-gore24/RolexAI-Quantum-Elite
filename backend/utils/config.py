@@ -7,6 +7,7 @@ class Config:
     OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
     OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "openai/gpt-3.5-turbo")
     EMBED_MODEL = os.getenv("EMBED_MODEL", "all-MiniLM-L6-v2")
+    HUGGINGFACE_API_TOKEN = os.getenv("HUGGINGFACE_API_TOKEN", "")
     CHROMA_DB_PATH = os.getenv("CHROMA_DB_PATH", "./chroma_db")
     SECRET_KEY = os.getenv("SECRET_KEY", "rolex-ai-secret-key-2024-ultra-secure")
     ADMIN_USERNAME = os.getenv("ADMIN_USERNAME", "Abhijit")
