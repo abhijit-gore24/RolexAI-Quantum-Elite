@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://rolexai-backend.onrender.com/:path*"
+      "destination": "https://rolexai-backend-new.onrender.com/:path*"
     },
     {
       "source": "/(.*)",
