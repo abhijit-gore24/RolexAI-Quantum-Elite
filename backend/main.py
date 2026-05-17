@@ -150,6 +150,9 @@ async def chat(
     if req.session_id in sessions:
         sessions[req.session_id]["updated_at"] = datetime.now().isoformat()
         sessions[req.session_id]["message_count"] = len(messages_db[req.session_id])
+        # Set title from first user message for better history display
+        if sessions[req.session_id].get("message_count", 0) == 1:
+            sessions[req.session_id]["title"] = req.message[:60] + ("..." if len(req.message) > 60 else "")
         save_sessions(sessions)
     
     save_messages(messages_db)

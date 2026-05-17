@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Paperclip, Loader2, Sparkles, Zap, Brain, Globe } from 'lucide-react';
+import { Send, Paperclip, Loader2, Sparkles, Zap, Brain, Globe, Mic, MicOff } from 'lucide-react';
 import axios from 'axios';
 
 interface Message {
@@ -27,6 +27,59 @@ const ChatPage: React.FC = () => {
 
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Voice-to-text state
+  const [isListening, setIsListening] = useState(false);
+  const recognitionRef = useRef<any>(null);
+
+  const toggleVoice = useCallback(() => {
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      alert('Voice input is not supported in this browser. Please use Chrome or Edge.');
+      return;
+    }
+
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+
+    const recognition = new SpeechRecognition();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+    recognitionRef.current = recognition;
+
+    let finalTranscript = '';
+
+    recognition.onresult = (event: any) => {
+      let interim = '';
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript;
+        } else {
+          interim = transcript;
+        }
+      }
+      setInput(prev => finalTranscript || prev + interim);
+    };
+
+    recognition.onend = () => {
+      setIsListening(false);
+      if (finalTranscript) {
+        setInput(finalTranscript);
+      }
+    };
+
+    recognition.onerror = () => {
+      setIsListening(false);
+    };
+
+    recognition.start();
+    setIsListening(true);
+  }, [isListening]);
 
   useEffect(() => {
     const initSession = async () => {
@@ -310,6 +363,14 @@ const ChatPage: React.FC = () => {
             className="chat-textarea"
             rows={1}
           />
+          <button
+            id="voice-input-btn"
+            onClick={toggleVoice}
+            className={`chat-attach-btn ${isListening ? 'text-red-500 bg-red-50 animate-pulse' : ''}`}
+            title={isListening ? 'Stop listening' : 'Voice input'}
+          >
+            {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+          </button>
           <button
             id="send-message-btn"
             onClick={() => handleSend()}
