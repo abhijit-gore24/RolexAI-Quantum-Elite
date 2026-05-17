@@ -1,7 +1,7 @@
 import os
 from typing import List, Optional
 from langchain_openai import ChatOpenAI
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+from langchain_huggingface import HuggingFaceEndpointEmbeddings
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader, TextLoader, Docx2txtLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
@@ -12,9 +12,9 @@ from utils.config import Config
 class RAGPipeline:
     def __init__(self):
         # Use HuggingFace Inference API — no local model loaded, minimal RAM usage
-        self.embeddings = HuggingFaceInferenceAPIEmbeddings(
-            api_key=Config.HUGGINGFACE_API_TOKEN,
-            model_name="sentence-transformers/all-MiniLM-L6-v2"
+        self.embeddings = HuggingFaceEndpointEmbeddings(
+            huggingfacehub_api_token=Config.HUGGINGFACE_API_TOKEN,
+            model="sentence-transformers/all-MiniLM-L6-v2"
         )
         self.vector_db = Chroma(
             persist_directory=Config.CHROMA_DB_PATH,
